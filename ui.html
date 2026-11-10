@@ -96,6 +96,7 @@ const G502_NAMES = [
   ['滚轮右拨', ''], ['滚轮左拨', ''],
 ];
 const ACTIONS = [
+  ['k:104', 'F13'], ['k:105', 'F14'], ['k:106', 'F15'],
   ['m:1', '左键'], ['m:2', '右键'], ['m:4', '中键'], ['m:8', '后退'], ['m:16', '前进'],
   ['s:3', 'DPI +'], ['s:4', 'DPI −'], ['s:5', 'DPI 循环'], ['s:6', '默认 DPI'], ['s:7', '狙击 DPI（按住）'],
   ['s:10', '配置循环'], ['s:8', '下一配置'], ['s:9', '上一配置'], ['s:11', 'G-Shift'],
@@ -161,15 +162,17 @@ function render() {
     const opts = ACTIONS.slice();
     if (d.act === 'raw') opts.unshift(['raw', '保持原样']);
     opts.forEach(([v, t]) => { const o = new Option(t, v); s.add(o); });
-    s.value = d.act;
+    const quick = d.act === 'key' && d.mod === 0 && d.key >= 0x68 && d.key <= 0x6a;
+    s.value = quick ? 'k:' + d.key : d.act;
     s.onchange = () => {
       let nd = { act: s.value };
+      if (s.value.startsWith('k:')) nd = { act: 'key', mod: 0, key: +s.value.slice(2) };
       if (s.value === 'key') nd = { act: 'key', mod: 0, key: 0x68 };
       if (s.value === 'raw') nd = { act: 'raw', raw: p.buttons[i] };
       edits[sel][i] = encode(nd); render();
     };
     td2.appendChild(s);
-    if (d.act === 'key') {
+    if (d.act === 'key' && !quick) {
       const kc = document.createElement('span'); kc.className = 'keycfg';
       MODS.forEach(([bit, n]) => {
         const l = document.createElement('label'), c = document.createElement('input');
