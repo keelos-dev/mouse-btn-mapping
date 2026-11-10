@@ -70,7 +70,6 @@ pre { background: var(--chip); border-radius: 6px; padding: 10px; font: 12px/1.5
     </table>
     <div class="actions">
       <button class="btn primary" id="bWrite" disabled>写入鼠标</button>
-      <button class="btn" id="bF1314" disabled>G7/G8 → F13/F14</button>
       <button class="btn" id="bUndo" disabled>放弃修改</button>
       <span class="sp" style="flex:1"></span>
       <button class="btn" id="bRestore" disabled>恢复原始备份</button>
@@ -233,16 +232,10 @@ async function connect() {
       (dev.mode !== 1 ? '鼠标当前是主机模式，写入后会自动切回板载模式。' : '已读取。'), bad.length || dev.mode !== 1 ? 'warn' : 'ok');
   } catch (e) { dev = null; setBtns(false); render(); status(String(e), 'err'); }
 }
-function setBtns(on) { ['bF1314', 'bRestore', 'bFactory'].forEach(id => $(id).disabled = !on); }
+function setBtns(on) { ['bRestore', 'bFactory'].forEach(id => $(id).disabled = !on); }
 
 $('bConnect').onclick = connect;
 $('bUndo').onclick = () => { edits[sel] = dev.profiles[sel].buttons.slice(); render(); };
-$('bF1314').onclick = () => {
-  if (!dev || dev.buttonCount !== 11) { status('不是 G502 布局，请手动设置', 'warn'); return; }
-  edits[sel][6] = encode({ act: 'key', mod: 0, key: 0x68 });
-  edits[sel][7] = encode({ act: 'key', mod: 0, key: 0x69 });
-  render(); status('已设置 G7=F13、G8=F14，点「写入鼠标」生效。');
-};
 $('bWrite').onclick = async () => {
   const e = edits[sel];
   if (decode(e[0]).act !== 'm:1' && !confirm('左键不再是「左键」，写入后可能没法用鼠标点击。确定吗？')) return;
