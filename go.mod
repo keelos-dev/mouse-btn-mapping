@@ -1,4 +1,4 @@
-module g502map
+module github.com/keelos-dev/mouse-btn-mapping
 
 go 1.27.3
 
